@@ -27,7 +27,8 @@ def sign_up():
 def tweet():
     # 요청 데이터 => { id: 1, tweet: "ABC" }
     payload = request.json
-    user_id = int(payload["id"])
+    
+	user_id = int(payload["id"])
     tweet_data = payload["tweet"]
 
     if user_id not in app.users:
@@ -40,3 +41,24 @@ def tweet():
     app.tweets.append({"user_id": user_id, "tweet": tweet})
 
     return "", 200
+
+
+@app.route('/follow', methods=["POST"])
+def follow():
+	# 요청 데이터 => { id: 1, follow: 2 }
+	payload = request.json
+	
+	user_id = int(payload["id"])
+	user_id_to_follow = int(payload["follow"])
+
+	if user_id not in app.users or user_id_to_follow not in app.users:
+		return '존재하지 않는 유저입니다.', 400
+
+	user = app.users[user_id]
+	user.setdefault('follow', set()).add(user_id_to_follow)
+
+	return jsonify(user)
+
+@app.route('/unfollow', methods=["POST"])
+def method_name():
+   pass
