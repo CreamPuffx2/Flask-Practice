@@ -1,8 +1,16 @@
-from flask import flask, jsonify, request
+from flask import Flask, jsonify, request
 
-app = flask(__name__)
+app = Flask(__name__)
+
 app.users = {}
 app.id_count = 1
+
+app.tweets = []
+
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return "pong"
 
 
 @app.route("/sign-up", methods=["POST"])
@@ -13,3 +21,22 @@ def sign_up():
     app.id_count = app.id_count + 1
 
     return jsonify(new_user)
+
+
+@app.route("/tweet", methods=["POST"])
+def tweet():
+    # 요청 데이터 => { id: 1, tweet: "ABC" }
+    payload = request.json
+    user_id = int(payload["id"])
+    tweet_data = payload["tweet"]
+
+    if user_id not in app.users:
+        return "존재하지 않는 유저입니다.", 400
+
+    if len(tweet_data) > 300:
+        return "300자를 초과했습니다.", 400
+
+    # app.tweets["user_id"] = tweet_data
+    app.tweets.append({"user_id": user_id, "tweet": tweet})
+
+    return "", 200
